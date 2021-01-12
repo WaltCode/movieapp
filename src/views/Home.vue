@@ -2,7 +2,7 @@
   <div class="home">
     <div class="movie_card">
       <router-link to="/movies/2345">
-        <img src="../../public/img/download.jpg" alt="" class="movie_img">
+        <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fcomicbook.com%2Fanime%2Fnews%2Fnaruto-boruto-creator-masashi-kishimoto-learned-success-fan-letters%2F&psig=AOvVaw3SehNo6G3PrQrouM_h8cm0&ust=1610553131009000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJCG_Y_glu4CFQAAAAAdAAAAABAI" alt="" class="movie_img">
         <div class="details">
             <h1>Naruto</h1>
             <p>hsdakdhdhwdhedxbhjsdxjkxjkwdjfdwfgcbfcugkfwbnfcgf
@@ -13,7 +13,7 @@
       </router-link>
     </div>
     
-    <form @submit.prevent="" class="form_control">
+    <form @submit.prevent="searchMovies" class="form_control">
       <input type="text" 
       v-model="search_query" 
       id="search"
@@ -23,6 +23,20 @@
     </form>
 
     <div class="movies_list">
+  
+      <div v-for="movie in movies" :key="movie.imdbID" class="movie">
+        <router-link :to="'/movies/'+ movie.imdbID" class="movie_link">
+        <div class="movieImg">
+          <img :src="movie.Poster" :alt="movie.Title" class="movie_img">
+          <div class="type">{{movie.Type}}</div>
+        </div>
+        <div class="movie_detail">
+          <p class="title">{{movie.Title}}</p>
+          <p class="year">{{movie.Year}}</p>
+        </div>
+        </router-link> 
+      </div>
+    
 
     </div>
   </div>
@@ -30,13 +44,52 @@
 
 <script>
 // @ is an alias to /src
-
+import {ref} from 'vue'
+import env from "@/env.js"
 
 export default {
-  
+  setup(){
+    const search_query = ref('')
+    const movies = ref([])
+
+    const searchMovies = () => {
+      if(search_query.value != ""){
+        fetch(`http://www.omdbapi.com/?apikey=${env.apiKey}&s=${search_query.value}`)
+              .then(res => res.json())
+              .then(data => {
+                movies.value = data.Search
+                console.log(movies.value)
+                search_query.value = ""
+              })
+      }
+    }
+
+    return{
+      search_query,
+      movies,
+      searchMovies
+    }
+  }
 }
 </script>
 <style lang="scss">
+.movies_list{
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0px 8px;
+
+  .movie{
+    flex: 1 1 50%;
+    max-width: 50%;
+    padding: 16px 8px;
+
+    .movie_link{
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+  }
+}
 .movie_card{
   position: relative;
 
@@ -100,7 +153,19 @@ export default {
       
     }
     &[type="submit"]{
-      
+      width: 100%;
+      min-width: 200px;
+      background-color:#42b883;
+      color: white;
+      border-radius: 5px;
+      padding: 5px 15px;
+      text-transform: uppercase;
+      transition: .4s;
+    }
+    &:hover{
+      background-color: #496583;
+      color: #42b883;
+      font-weight: bold;
     }
   }
 }
